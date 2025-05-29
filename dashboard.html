@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MATAR Security - Terminal de Contrôle</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+
+
+    <style>
+        /* Effets hacking supplémentaires */
+        .matrix-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            object-fit: cover;
+            opacity: 0.08;
+            filter: brightness(0.5) contrast(1.8);
+        }
+        
+        .terminal-text {
+            font-family: 'Courier New', monospace;
+            color: #00ff00;
+            text-shadow: 0 0 5px rgba(0, 255, 0, 0.7);
+        }
+        
+        .blink {
+            animation: blink 1s infinite;
+        }
+        
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+        
+        .scanning-animation {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .scanning-animation::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #00ff00, transparent);
+            animation: scan 3s linear infinite;
+        }
+        
+        @keyframes scan {
+            0% { top: 0; }
+            100% { top: 100%; }
+        }
+        
+        .status-pulse {
+            animation: status-pulse 2s infinite;
+        }
+        
+        @keyframes status-pulse {
+            0% { opacity: 0.7; }
+            50% { opacity: 1; text-shadow: 0 0 10px currentColor; }
+            100% { opacity: 0.7; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Vidéo de fond style terminal -->
+    <video autoplay muted loop class="matrix-bg">
+                <source src="{{ url_for('static', filename='assets/hack.mp4') }}" type="video/mp4">
+    </video>
+    
+    <div class="dashboard-container scanning-animation">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo terminal-text">
+                <i class="fas fa-shield-alt blink"></i>
+                <span>SYSTEM_CTRL</span>
+            </div>
+            
+            <nav class="nav-menu">
+                <a href="dashboard.html" class="active terminal-text">
+                    <i class="fas fa-tachometer-alt"></i> <span class="cli-prompt">></span> DASHBOARD
+                </a>
+                <a href="devices.html" class="terminal-text">
+                    <i class="fas fa-microchip"></i> <span class="cli-prompt">></span> DEVICES
+                </a>
+                <a href="logs.html" class="terminal-text">
+                    <i class="fas fa-clipboard-list"></i> <span class="cli-prompt">></span> LOGS
+                </a>
+                <a href="#" class="terminal-text">
+                    <i class="fas fa-cog"></i> <span class="cli-prompt">></span> CONFIG
+                </a>
+                <a href="#" id="logoutBtn" class="terminal-text">
+                    <i class="fas fa-sign-out-alt"></i> <span class="cli-prompt">></span> LOGOUT
+                </a>
+            </nav>
+            
+            <div class="system-status terminal-text">
+                <div class="status-item online status-pulse">
+                    <i class="fas fa-circle"></i>
+                    <span>SYSTEM_ACTIVE</span>
+                </div>
+                <div class="status-item status-pulse">
+                    <i class="fas fa-shield-virus"></i>
+                    <span>DEFENSE_LVL5</span>
+                </div>
+                <div class="status-item">
+                    <i class="fas fa-network-wired"></i>
+                    <span id="sys-ip">IP: 192.168.1.105</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <header class="top-bar">
+                <div class="search-bar terminal-input">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="COMMAND..." class="terminal-style">
+                </div>
+                <div class="user-info terminal-text">
+                    <span>ROOT_ADMIN</span>
+                    <div class="user-avatar">
+                        <i class="fas fa-user-secret"></i>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="content">
+                <h1 class="terminal-text">TERMINAL_CONTROL <span class="blink">_</span></h1>
+                
+                <!-- Stats Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card terminal-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-door-open"></i>
+                        </div>
+                        <div class="stat-info terminal-text">
+                            <h3>ACCESS_TODAY</h3>
+                            <p id="todayAccess">12</p>
+                            <div class="stat-subtext">PORTE PRINCIPALE</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card terminal-card alert">
+                        <div class="stat-icon">
+                            <i class="fas fa-ban"></i>
+                        </div>
+                        <div class="stat-info terminal-text">
+                            <h3>BLOCKED_ATTEMPTS</h3>
+                            <p id="blockedAttempts">3</p>
+                            <div class="stat-subtext">INTRUSION_DETECTED</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card terminal-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-bell"></i>
+                        </div>
+                        <div class="stat-info terminal-text">
+                            <h3>ALERT_STATUS</h3>
+                            <p id="alertsCount">1</p>
+                            <div class="stat-subtext">PRIORITY: MEDIUM</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card terminal-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="stat-info terminal-text">
+                            <h3>LAST_ACTIVITY</h3>
+                            <p id="lastActivity">02:14:23</p>
+                            <div class="stat-subtext">RFID_ACCESS</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Recent Activity -->
+                <div class="activity-section terminal-section">
+                    <h2 class="terminal-text"><i class="fas fa-history"></i> SYSTEM_LOG <span class="badge">LIVE</span></h2>
+                    <div class="activity-list" id="recentActivity">
+                        <div class="activity-item terminal-item">
+                            <div class="activity-icon access">
+                                <i class="fas fa-door-open"></i>
+                            </div>
+                            <div class="activity-details terminal-text">
+                                <h4>ACCESS_GRANTED</h4>
+                                <p>RFID: A1B2C3D4 | LOCATION: PORTE_PRINCIPALE</p>
+                            </div>
+                            <div class="activity-time terminal-text">
+                                14:32:45
+                            </div>
+                        </div>
+                        
+                        <div class="activity-item terminal-item alert">
+                            <div class="activity-icon">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                            <div class="activity-details terminal-text">
+                                <h4>INTRUSION_ATTEMPT</h4>
+                                <p>RFID: 00:EF:4D:A1 | LOCATION: PORTE_ARRIERE</p>
+                            </div>
+                            <div class="activity-time terminal-text">
+                                14:30:12
+                            </div>
+                        </div>
+                        
+                        <div class="activity-item terminal-item">
+                            <div class="activity-icon">
+                                <i class="fas fa-cog"></i>
+                            </div>
+                            <div class="activity-details terminal-text">
+                                <h4>SYSTEM_UPDATE</h4>
+                                <p>VERSION: 3.2.1 | STATUS: SUCCESS</p>
+                            </div>
+                            <div class="activity-time terminal-text">
+                                13:45:00
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="terminal-footer terminal-text">
+                        <span>>_</span> <span class="typing-text" id="systemStatusText"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+    <script>
+        // Effets supplémentaires
+        document.addEventListener('DOMContentLoaded', function() {
+            // Mise à jour dynamique de l'interface
+            function updateDynamicElements() {
+                const now = new Date();
+                document.getElementById('lastActivity').textContent = 
+                    `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}:${now.getSeconds().toString().padStart(2,'0')}`;
+                
+                // Simulation d'adresse IP dynamique
+                const fakeIP = `192.168.1.${Math.floor(Math.random() * 50) + 100}`;
+                document.getElementById('sys-ip').textContent = `IP: ${fakeIP}`;
+            }
+            
+            setInterval(updateDynamicElements, 1000);
+            updateDynamicElements();
+            
+            // Simulation de messages système
+            const systemMessages = [
+                "Initializing security protocols...",
+                "Monitoring all access points...",
+                "Firewall status: ACTIVE",
+                "Scanning for intrusions...",
+                "All systems nominal",
+                "RFID readers online",
+                "Camera feeds secure",
+                "Encryption: AES-256"
+            ];
+            
+            const statusElement = document.getElementById('systemStatusText');
+            let messageIndex = 0;
+            
+            function typeWriter(text, i, cb) {
+                if (i < text.length) {
+                    statusElement.innerHTML = text.substring(0, i+1) + '<span class="blink">|</span>';
+                    setTimeout(() => typeWriter(text, i + 1, cb), 50 + Math.random() * 50);
+                } else if (typeof cb === 'function') {
+                    setTimeout(cb, 2000);
+                }
+            }
+            
+            function showNextMessage() {
+                typeWriter(systemMessages[messageIndex], 0, () => {
+                    messageIndex = (messageIndex + 1) % systemMessages.length;
+                    showNextMessage();
+                });
+            }
+            
+            showNextMessage();
+            
+            // Simulation de mise à jour en temps réel
+            setInterval(() => {
+                const randomUpdate = Math.random();
+                if (randomUpdate > 0.7) {
+                    const accessCount = parseInt(document.getElementById('todayAccess').textContent);
+                    document.getElementById('todayAccess').textContent = accessCount + 1;
+                    
+                    // Ajouter une nouvelle activité
+                    const now = new Date();
+                    const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    
+                    const newActivity = document.createElement('div');
+                    newActivity.className = 'activity-item terminal-item';
+                    newActivity.innerHTML = `
+                        <div class="activity-icon access">
+                            <i class="fas fa-door-open"></i>
+                        </div>
+                        <div class="activity-details terminal-text">
+                            <h4>ACCESS_GRANTED</h4>
+                            <p>RFID: ${Math.random().toString(36).substr(2, 8).toUpperCase()} | LOCATION: PORTE_PRINCIPALE</p>
+                        </div>
+                        <div class="activity-time terminal-text">
+                            ${timeStr}
+                        </div>
+                    `;
+                    
+                    document.getElementById('recentActivity').prepend(newActivity);
+                }
+            }, 5000);
+            
+            // Gestion de la déconnexion
+            document.getElementById('logoutBtn').addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                // Effet de déconnexion
+                document.querySelector('.dashboard-container').classList.add('shutdown-effect');
+                
+                setTimeout(() => {
+                    localStorage.removeItem('authToken');
+                    window.location.href = 'templates/dashboard.html';
+                }, 1000);
+            });
+        });
+    </script>
+</body>
+</html>

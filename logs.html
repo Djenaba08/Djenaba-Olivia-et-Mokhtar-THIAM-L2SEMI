@@ -1,0 +1,1059 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MATAR Security - Journal</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #34495e;
+            --accent-color: #3498db;
+            --danger-color: #e74c3c;
+            --success-color: #2ecc71;
+            --warning-color: #f39c12;
+            --light-color: #ecf0f1;
+            --dark-color: #2c3e50;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        /* Sidebar Styles */
+        .sidebar {
+            width: 250px;
+            background-color: var(--primary-color);
+            color: white;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .logo {
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .logo i {
+            margin-right: 10px;
+            font-size: 1.5rem;
+            color: var(--accent-color);
+        }
+        
+        .nav-menu {
+            flex: 1;
+            padding: 20px 0;
+        }
+        
+        .nav-menu a {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: var(--light-color);
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        
+        .nav-menu a i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+        
+        .nav-menu a:hover, .nav-menu a.active {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-left: 3px solid var(--accent-color);
+        }
+        
+        .nav-menu a.active {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        .system-status {
+            padding: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .status-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+        }
+        
+        .status-item i {
+            margin-right: 10px;
+        }
+        
+        .status-item.online i {
+            color: var(--success-color);
+        }
+        
+        /* Main Content Styles */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .top-bar {
+            background-color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .search-bar {
+            display: flex;
+            align-items: center;
+            background-color: #f5f5f5;
+            padding: 8px 15px;
+            border-radius: 20px;
+            width: 300px;
+        }
+        
+        .search-bar i {
+            color: #777;
+            margin-right: 10px;
+        }
+        
+        .search-bar input {
+            border: none;
+            background: transparent;
+            outline: none;
+            width: 100%;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+        }
+        
+        .user-info span {
+            margin-right: 10px;
+            font-weight: 500;
+        }
+        
+        .user-avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+        
+        .content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        /* Page Header */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .page-header h1 {
+            display: flex;
+            align-items: center;
+            color: var(--dark-color);
+        }
+        
+        .page-header h1 i {
+            margin-right: 10px;
+            color: var(--accent-color);
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        /* Button Styles */
+        .btn-primary, .btn-secondary {
+            padding: 8px 15px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background-color: var(--accent-color);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #2980b9;
+        }
+        
+        .btn-secondary {
+            background-color: white;
+            border: 1px solid #ddd;
+            color: var(--dark-color);
+        }
+        
+        .btn-secondary:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .btn-icon {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--accent-color);
+            font-size: 1rem;
+        }
+        
+        /* Filtres avancés */
+        .advanced-filters {
+            background-color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .filter-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: flex-end;
+        }
+        
+        .filter-group {
+            flex: 1;
+            min-width: 180px;
+        }
+        
+        .filter-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 0.8rem;
+            color: #7f8c8d;
+        }
+        
+        .filter-group input,
+        .filter-group select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+        
+        /* Tableau des logs */
+        .logs-table-container {
+            overflow-x: auto;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+        }
+        
+        .logs-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .logs-table th,
+        .logs-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .logs-table th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+        }
+        
+        .logs-table tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .log-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .log-badge.access {
+            background-color: rgba(46, 204, 113, 0.1);
+            color: #27ae60;
+        }
+        
+        .log-badge.alert {
+            background-color: rgba(231, 76, 60, 0.1);
+            color: #e74c3c;
+        }
+        
+        .log-badge.system {
+            background-color: rgba(52, 152, 219, 0.1);
+            color: #3498db;
+        }
+        
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+            margin-top: 20px;
+        }
+        
+        .btn-pagination {
+            width: 35px;
+            height: 35px;
+            border: 1px solid #ddd;
+            background-color: white;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-pagination:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .btn-pagination:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .page-active {
+            width: 35px;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #3498db;
+            color: white;
+            border-radius: 4px;
+        }
+        
+        /* Modal des détails */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal.large {
+            max-width: 800px;
+        }
+        
+        .modal-content {
+            background-color: white;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .modal-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-header h2 {
+            display: flex;
+            align-items: center;
+            font-size: 1.2rem;
+        }
+        
+        .modal-header h2 i {
+            margin-right: 10px;
+        }
+        
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #777;
+        }
+        
+        .modal-body {
+            padding: 20px;
+        }
+        
+        .log-details {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 15px;
+        }
+        
+        .detail-row {
+            margin-bottom: 15px;
+        }
+        
+        .detail-row.full-width {
+            grid-column: 1 / -1;
+        }
+        
+        .detail-label {
+            font-weight: 600;
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+        
+        .detail-value {
+            font-size: 0.9rem;
+        }
+        
+        .raw-data {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.8rem;
+            overflow-x: auto;
+            max-height: 200px;
+        }
+        
+        .badge-access {
+            background-color: rgba(46, 204, 113, 0.1);
+            color: #27ae60;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .dashboard-container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+            }
+            
+            .filter-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .filter-group {
+                min-width: 100%;
+            }
+            
+            .header-actions {
+                flex-direction: column;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo">
+                <i class="fas fa-shield-alt"></i>
+                <span>MATAR Security</span>
+            </div>
+            
+            <nav class="nav-menu">
+                <a href="dashboard.html">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </a>
+                <a href="devices.html">
+                    <i class="fas fa-microchip"></i> Appareils
+                </a>
+                <a href="logs.html" class="active">
+                    <i class="fas fa-clipboard-list"></i> Journal
+                </a>
+                <a href="#">
+                    <i class="fas fa-cog"></i> Paramètres
+                </a>
+                <a href="#" id="logoutBtn">
+                    <i class="fas fa-sign-out-alt"></i> Déconnexion
+                </a>
+            </nav>
+            
+            <div class="system-status">
+                <div class="status-item online">
+                    <i class="fas fa-circle"></i>
+                    <span>Système actif</span>
+                </div>
+                <div class="status-item">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>Protection maximale</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <header class="top-bar">
+                <div class="search-bar">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Rechercher...">
+                </div>
+                <div class="user-info">
+                    <span>Admin</span>
+                    <div class="user-avatar">
+                        <i class="fas fa-user-secret"></i>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="content">
+                <div class="page-header">
+                    <h1><i class="fas fa-clipboard-list"></i> Journal des Activités</h1>
+                    <div class="header-actions">
+                        <button class="btn-secondary" id="exportLogsBtn">
+                            <i class="fas fa-file-export"></i> Exporter
+                        </button>
+                        <button class="btn-secondary" id="clearLogsBtn">
+                            <i class="fas fa-trash-alt"></i> Purger
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Filtres avancés -->
+                <div class="advanced-filters">
+                    <div class="filter-row">
+                        <div class="filter-group">
+                            <label for="dateFrom"><i class="fas fa-calendar-alt"></i> Du</label>
+                            <input type="date" id="dateFrom">
+                        </div>
+                        <div class="filter-group">
+                            <label for="dateTo"><i class="fas fa-calendar-alt"></i> Au</label>
+                            <input type="date" id="dateTo">
+                        </div>
+                        <div class="filter-group">
+                            <label for="logType"><i class="fas fa-filter"></i> Type</label>
+                            <select id="logType">
+                                <option value="all">Tous</option>
+                                <option value="access">Accès</option>
+                                <option value="alert">Alertes</option>
+                                <option value="system">Système</option>
+                            </select>
+                        </div>
+                        <button class="btn-primary" id="applyFiltersBtn">
+                            <i class="fas fa-search"></i> Appliquer
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Tableau des logs -->
+                <div class="logs-table-container">
+                    <table class="logs-table">
+                        <thead>
+                            <tr>
+                                <th>Date/Heure</th>
+                                <th>Type</th>
+                                <th>Appareil</th>
+                                <th>Événement</th>
+                                <th>Détails</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="logsTableBody">
+                            <!-- Rempli dynamiquement par JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <div class="pagination">
+                    <button class="btn-pagination" id="prevPageBtn" disabled>
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <span class="page-active" id="currentPage">1</span>
+                    <button class="btn-pagination" id="nextPageBtn">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de détails du log -->
+    <div class="modal" id="logDetailsModal">
+        <div class="modal-content large">
+            <div class="modal-header">
+                <h2><i class="fas fa-info-circle"></i> Détails de l'événement</h2>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body" id="modalDetailsContent">
+                <!-- Rempli dynamiquement par JavaScript -->
+            </div>
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='js/logs.js') }}">
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Données des cartes RFID autorisées
+            const authorizedCards = [
+                { uid: [0xC3, 0xAD, 0x21, 0x13], name: "MATAR" },
+                { uid: [0xC3, 0x1C, 0x6D, 0x93], name: "MATAR" },
+                { uid: [0x00, 0xE4, 0xDA, 0x11], name: "Accès Autorisé" }
+            ];
+
+            // Données des logs
+            let logs = [];
+            let currentPage = 1;
+            const logsPerPage = 10;
+
+            // Éléments DOM
+            const logsTableBody = document.getElementById('logsTableBody');
+            const prevPageBtn = document.getElementById('prevPageBtn');
+            const nextPageBtn = document.getElementById('nextPageBtn');
+            const currentPageEl = document.getElementById('currentPage');
+            const logDetailsModal = document.getElementById('logDetailsModal');
+            const modalDetailsContent = document.getElementById('modalDetailsContent');
+            const closeModalBtn = document.querySelector('.close-modal');
+            const exportLogsBtn = document.getElementById('exportLogsBtn');
+            const clearLogsBtn = document.getElementById('clearLogsBtn');
+            const applyFiltersBtn = document.getElementById('applyFiltersBtn');
+            const dateFromInput = document.getElementById('dateFrom');
+            const dateToInput = document.getElementById('dateTo');
+            const logTypeSelect = document.getElementById('logType');
+
+            // Initialiser les dates dans les filtres
+            const today = new Date().toISOString().split('T')[0];
+            dateFromInput.value = today;
+            dateToInput.value = today;
+
+            // Formatage de la date
+            function formatDateTime(date) {
+                const options = {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit'
+                };
+                return new Intl.DateTimeFormat('fr-FR', options).format(date);
+            }
+
+            // Générer un ID unique pour les logs
+            function generateLogId() {
+                return 'LOG-' + Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
+            }
+
+            // Ajouter un nouveau log
+            function addLog(type, device, event, details) {
+                const now = new Date();
+                const log = {
+                    id: generateLogId(),
+                    timestamp: now,
+                    type: type,
+                    device: device,
+                    event: event,
+                    details: details,
+                    rawData: {
+                        timestamp: now.toISOString(),
+                        type: type,
+                        device: device,
+                        event: event,
+                        details: details
+                    }
+                };
+                
+                logs.unshift(log);
+                renderLogs();
+            }
+
+            // Simuler des événements RFID
+            function simulateRFIDEvents() {
+                // Cartes autorisées
+                const card1 = [0xC3, 0xAD, 0x21, 0x13];
+                const card2 = [0xC3, 0x1C, 0x6D, 0x93];
+                const card3 = [0x00, 0xE4, 0xDA, 0x11];
+                
+                // Carte non autorisée
+                const card4 = [0x12, 0x34, 0x56, 0x78];
+                
+                // Détection aléatoire de cartes
+                const cards = [card1, card2, card3, card4];
+                const randomCard = cards[Math.floor(Math.random() * cards.length)];
+                
+                // Vérifier si la carte est autorisée
+                const authorizedCard = authorizedCards.find(card => 
+                    card.uid.every((byte, index) => byte === randomCard[index])
+                );
+                
+                if (authorizedCard) {
+                    const uidStr = randomCard.map(b => b.toString(16).padStart(2, '0').toUpperCase()).join(':');
+                    addLog(
+                        'access',
+                        'RFID-001',
+                        Accès autorisé (${authorizedCard.name}), 
+                        UID: ${uidStr}
+                    );
+                } else {
+                    const uidStr = randomCard.map(b => b.toString(16).padStart(2, '0').toUpperCase()).join(':');
+                    addLog(
+                        'alert',
+                        'RFID-001',
+                        'Tentative d\'accès non autorisée',
+                        UID: ${uidStr}
+                    );
+                }
+                
+                // Simuler d'autres types d'événements
+                const eventTypes = ['system', 'alert', 'access'];
+                const randomEvent = eventTypes[Math.floor(Math.random() * eventTypes.length)];
+                
+                if (randomEvent === 'system') {
+                    const systemEvents = [
+                        'Mise à jour du système',
+                        'Sauvegarde effectuée',
+                        'Vérification de sécurité'
+                    ];
+                    addLog(
+                        'system',
+                        'SERVEUR',
+                        systemEvents[Math.floor(Math.random() * systemEvents.length)],
+                        'Opération système automatique'
+                    );
+                } else if (randomEvent === 'alert') {
+                    const alertEvents = [
+                        'Mouvement détecté',
+                        'Porte forcée',
+                        'Caméra hors ligne'
+                    ];
+                    addLog(
+                        'alert',
+                        CAM-00${Math.floor(Math.random() * 3) + 1},
+                        alertEvents[Math.floor(Math.random() * alertEvents.length)],
+                        'Zone: ' + ['Entrée principale', 'Couloir', 'Bureau'][Math.floor(Math.random() * 3)]
+                    );
+                }
+                
+                // Planifier le prochain événement
+                const nextEvent = Math.random() * 10000 + 3000; // Entre 3 et 13 secondes
+                setTimeout(simulateRFIDEvents, nextEvent);
+            }
+
+            // Afficher les logs dans le tableau
+            function renderLogs() {
+                // Filtrer les logs selon les critères
+                let filteredLogs = [...logs];
+                
+                // Filtrer par date
+                if (dateFromInput.value || dateToInput.value) {
+                    const fromDate = dateFromInput.value ? new Date(dateFromInput.value) : null;
+                    const toDate = dateToInput.value ? new Date(dateToInput.value + 'T23:59:59') : null;
+                    
+                    filteredLogs = filteredLogs.filter(log => {
+                        const logDate = new Date(log.timestamp);
+                        return (!fromDate || logDate >= fromDate) && (!toDate || logDate <= toDate);
+                    });
+                }
+                
+                // Filtrer par type
+                if (logTypeSelect.value !== 'all') {
+                    filteredLogs = filteredLogs.filter(log => log.type === logTypeSelect.value);
+                }
+                
+                // Pagination
+                const totalPages = Math.ceil(filteredLogs.length / logsPerPage);
+                const startIndex = (currentPage - 1) * logsPerPage;
+                const paginatedLogs = filteredLogs.slice(startIndex, startIndex + logsPerPage);
+                
+                // Mettre à jour l'interface
+                logsTableBody.innerHTML = '';
+                
+                if (paginatedLogs.length === 0) {
+                    const row = document.createElement('tr');
+                    row.innerHTML = <td colspan="6" style="text-align: center;">Aucun log trouvé</td>;
+                    logsTableBody.appendChild(row);
+                } else {
+                    paginatedLogs.forEach(log => {
+                        const row = document.createElement('tr');
+                        row.className = log-${log.type};
+                        
+                        // Déterminer l'icône et la classe en fonction du type
+                        let icon, badgeClass;
+                        switch(log.type) {
+                            case 'access':
+                                icon = 'fa-door-open';
+                                badgeClass = 'access';
+                                break;
+                            case 'alert':
+                                icon = 'fa-exclamation-triangle';
+                                badgeClass = 'alert';
+                                break;
+                            case 'system':
+                                icon = 'fa-cog';
+                                badgeClass = 'system';
+                                break;
+                        }
+                        
+                        row.innerHTML = `
+                            <td>${formatDateTime(log.timestamp)}</td>
+                            <td><span class="log-badge ${badgeClass}"><i class="fas ${icon}"></i> ${log.type === 'access' ? 'Accès' : log.type === 'alert' ? 'Alerte' : 'Système'}</span></td>
+                            <td>${log.device}</td>
+                            <td>${log.event}</td>
+                            <td>${log.details}</td>
+                            <td>
+                                <button class="btn-icon view-details" data-logid="${log.id}" title="Détails">
+                                    <i class="fas fa-info-circle"></i>
+                                </button>
+                            </td>
+                        `;
+                        
+                        logsTableBody.appendChild(row);
+                    });
+                }
+                
+                // Mettre à jour la pagination
+                currentPageEl.textContent = currentPage;
+                prevPageBtn.disabled = currentPage === 1;
+                nextPageBtn.disabled = currentPage === totalPages || totalPages === 0;
+            }
+
+            // Afficher les détails d'un log
+            function showLogDetails(logId) {
+                const log = logs.find(l => l.id === logId);
+                if (!log) return;
+                
+                // Déterminer l'icône et la classe en fonction du type
+                let icon, badgeClass, typeText;
+                switch(log.type) {
+                    case 'access':
+                        icon = 'fa-door-open';
+                        badgeClass = 'badge-access';
+                        typeText = 'Accès';
+                        break;
+                    case 'alert':
+                        icon = 'fa-exclamation-triangle';
+                        badgeClass = 'alert';
+                        typeText = 'Alerte';
+                        break;
+                    case 'system':
+                        icon = 'fa-cog';
+                        badgeClass = 'system';
+                        typeText = 'Système';
+                        break;
+                }
+                
+                modalDetailsContent.innerHTML = `
+                    <div class="log-details">
+                        <div class="detail-row">
+                            <span class="detail-label">ID Événement:</span>
+                            <span class="detail-value">${log.id}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Date/Heure:</span>
+                            <span class="detail-value">${formatDateTime(log.timestamp)}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Type:</span>
+                            <span class="detail-value ${badgeClass}"><i class="fas ${icon}"></i> ${typeText}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Appareil:</span>
+                            <span class="detail-value">${log.device}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Événement:</span>
+                            <span class="detail-value">${log.event}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Détails:</span>
+                            <span class="detail-value">${log.details}</span>
+                        </div>
+                        <div class="detail-row full-width">
+                            <span class="detail-label">Données brutes:</span>
+                            <pre class="detail-value raw-data">${JSON.stringify(log.rawData, null, 2)}</pre>
+                        </div>
+                    </div>
+                `;
+                
+                logDetailsModal.style.display = 'flex';
+            }
+
+            // Exporter les logs
+            function exportLogs() {
+                const filteredLogs = getFilteredLogs();
+                const dataStr = JSON.stringify(filteredLogs, null, 2);
+                const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+                
+                const exportFileDefaultName = logs-matarsecurity-${new Date().toISOString().split('T')[0]}.json;
+                
+                const linkElement = document.createElement('a');
+                linkElement.setAttribute('href', dataUri);
+                linkElement.setAttribute('download', exportFileDefaultName);
+                linkElement.click();
+            }
+
+            // Obtenir les logs filtrés
+            function getFilteredLogs() {
+                let filteredLogs = [...logs];
+                
+                // Filtrer par date
+                if (dateFromInput.value || dateToInput.value) {
+                    const fromDate = dateFromInput.value ? new Date(dateFromInput.value) : null;
+                    const toDate = dateToInput.value ? new Date(dateToInput.value + 'T23:59:59') : null;
+                    
+                    filteredLogs = filteredLogs.filter(log => {
+                        const logDate = new Date(log.timestamp);
+                        return (!fromDate || logDate >= fromDate) &&
+                                (!toDate || logDate <= toDate);
+                    });
+                }
+                
+                // Filtrer par type
+                if (logTypeSelect.value !== 'all') {
+                    filteredLogs = filteredLogs.filter(log => log.type === logTypeSelect.value);
+                }
+                
+                return filteredLogs;
+            }
+
+            // Effacer les logs
+            function clearLogs() {
+                if (confirm("Voulez-vous vraiment supprimer tous les logs ? Cette action est irréversible.")) {
+                    logs = [];
+                    currentPage = 1;
+                    renderLogs();
+                }
+            }
+
+            // Événements
+            prevPageBtn.addEventListener('click', () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    renderLogs();
+                }
+            });
+            
+            nextPageBtn.addEventListener('click', () => {
+                const filteredLogs = getFilteredLogs();
+                const totalPages = Math.ceil(filteredLogs.length / logsPerPage);
+                
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    renderLogs();
+                }
+            });
+            
+            
+            closeModalBtn.addEventListener('click', () => {
+                logDetailsModal.style.display = 'none';
+            });
+            
+            logDetailsModal.addEventListener('click', (e) => {
+                if (e.target === logDetailsModal) {
+                    logDetailsModal.style.display = 'none';
+                }
+            });
+            
+            exportLogsBtn.addEventListener('click', exportLogs);
+            clearLogsBtn.addEventListener('click', clearLogs);
+            applyFiltersBtn.addEventListener('click', () => {
+                currentPage = 1;
+                renderLogs();
+            });
+
+            // Générer des logs initiaux
+            for (let i = 0; i < 15; i++) {
+                const now = new Date();
+                now.setHours(now.getHours() - Math.random() * 24);
+                now.setMinutes(now.getMinutes() - Math.random() * 60);
+                
+                const types = ['access', 'alert', 'system'];
+                const type = types[Math.floor(Math.random() * types.length)];
+                
+                let device, event, details;
+                
+                if (type === 'access') {
+                    device = 'RFID-001';
+                    event = Math.random() > 0.3 ? 'Accès autorisé' : 'Accès refusé';
+                    details = UID: ${Math.random().toString(36).substr(2, 8).toUpperCase()};
+                } else if (type === 'alert') {
+                    device = CAM-00${Math.floor(Math.random() * 3) + 1};
+                    const alerts = ['Mouvement détecté', 'Porte forcée', 'Caméra hors ligne'];
+                    event = alerts[Math.floor(Math.random() * alerts.length)];
+                    details = Zone: ${['Entrée', 'Couloir', 'Bureau'][Math.floor(Math.random() * 3)]};
+                } else {
+                    device = 'SERVEUR';
+                    const systems = ['Mise à jour système', 'Sauvegarde', 'Vérification sécurité'];
+                    event = systems[Math.floor(Math.random() * systems.length)];
+                    details = 'Opération automatique';
+                }
+                
+                logs.push({
+                    id: generateLogId(),
+                    timestamp: now,
+                    type: type,
+                    device: device,
+                    event: event,
+                    details: details,
+                    rawData: {
+                        timestamp: now.toISOString(),
+                        type: type,
+                        device: device,
+                        event: event,
+                        details: details
+                    }
+                });
+            }
+            
+            // Trier les logs par date (du plus récent au plus ancien)
+            logs.sort((a, b) => b.timestamp - a.timestamp);
+            
+            // Initialiser l'affichage
+            renderLogs();
+            
+            // Démarrer la simulation d'événements RFID
+            setTimeout(simulateRFIDEvents, 2000);
+        });
+    </script>
+</body>
+</html>

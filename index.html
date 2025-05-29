@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MATAR Security - Terminal d'Accès Sécurisé</title>
+    <style>
+        /* Reset et styles de base */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Courier New', monospace;
+        }
+        
+        body {
+            background-color: #000;
+            color: #0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        /* Animation de fond Matrix */
+        .matrix-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            object-fit: cover;
+            opacity: 0.15;
+            filter: brightness(0.5) contrast(1.5);
+        }
+        
+        /* Conteneur principal */
+        .auth-container {
+            width: 100%;
+            max-width: 500px;
+            background-color: rgba(0, 0, 0, 0.8);
+            border: 1px solid #0f0;
+            border-radius: 5px;
+            padding: 2rem;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* En-tête */
+        .security-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+        
+        .hacker-icon {
+            font-size: 3rem;
+            color: #0f0;
+            margin-bottom: 1rem;
+            position: relative;
+            display: inline-block;
+        }
+        
+        .pulse-effect {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background-color: rgba(0, 255, 0, 0.2);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(0.95); opacity: 0.7; }
+            70% { transform: scale(1.1); opacity: 0.2; }
+            100% { transform: scale(0.95); opacity: 0.7; }
+        }
+        
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+            position: relative;
+            display: inline-block;
+        }
+        
+        .terminal-effect::after {
+            content: "|";
+            animation: blink 1s infinite;
+            color: #0f0;
+        }
+        
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+        
+        .hacker-animation {
+            color: rgba(0, 255, 0, 0.5);
+            font-size: 0.7rem;
+            white-space: nowrap;
+            overflow: hidden;
+            width: 0;
+            animation: typing 15s steps(60, end) infinite;
+        }
+        
+        @keyframes typing {
+            from { width: 0; }
+            to { width: 100%; }
+        }
+        
+        /* Formulaire */
+        .auth-form {
+            margin-bottom: 2rem;
+        }
+        
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .terminal-input label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #0f0;
+            font-size: 0.9rem;
+        }
+        
+        .cli-prompt {
+            color: #0f0;
+            margin-right: 0.5rem;
+        }
+        
+        .terminal-style {
+            width: 100%;
+            padding: 0.8rem;
+            background-color: rgba(0, 0, 0, 0.5);
+            border: 1px solid #0f0;
+            color: #0f0;
+            font-family: 'Courier New', monospace;
+            border-radius: 3px;
+            outline: none;
+        }
+        
+        .terminal-style:focus {
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+        }
+        
+        .password-strength {
+            margin-top: 0.5rem;
+            height: 5px;
+            background-color: rgba(0, 255, 0, 0.1);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        
+        .strength-bar {
+            height: 100%;
+            width: 0%;
+            background-color: #ff0000;
+            transition: width 0.3s, background-color 0.3s;
+        }
+        
+        .strength-text {
+            font-size: 0.7rem;
+            margin-top: 0.3rem;
+            color: #ff0000;
+        }
+        
+        /* Bouton de connexion */
+        .auth-btn {
+            width: 100%;
+            padding: 1rem;
+            background-color: #0f0;
+            color: #000;
+            border: none;
+            border-radius: 3px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s;
+            margin-top: 1.5rem;
+        }
+        
+        .auth-btn:hover {
+            background-color: #0c0;
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.5);
+        }
+        
+        .btn-loader {
+            display: none;
+        }
+        
+        /* Informations de sécurité */
+        .security-info {
+            margin-top: 1.5rem;
+            font-size: 0.8rem;
+            color: rgba(0, 255, 0, 0.7);
+        }
+        
+        .security-info p {
+            margin-bottom: 0.3rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        /* Pied de page */
+        .auth-footer {
+            font-size: 0.8rem;
+            text-align: center;
+            color: rgba(0, 255, 0, 0.7);
+            margin-top: 1.5rem;
+        }
+        
+        .status-lights {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .status-light {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: #333;
+        }
+        
+        .status-light.red {
+            background-color: #ff0000;
+        }
+        
+        .status-light.yellow {
+            background-color: #ffcc00;
+        }
+        
+        .status-light.green {
+            background-color: #0f0;
+        }
+        
+        .status-light.active {
+            box-shadow: 0 0 10px currentColor;
+        }
+        
+        .green-text {
+            color: #0f0;
+        }
+        
+        .red-text {
+            color: #ff0000;
+        }
+        
+        /* Animations */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+        
+        .shake {
+            animation: shake 0.5s;
+        }
+    </style>
+</head>
+<body>
+    <!-- Vidéo de fond style terminal -->
+    <div class="matrix-bg"></div>
+    
+    <div class="auth-container">
+        <div class="security-header">
+            <div class="hacker-icon">
+                <i class="fas fa-user-secret"></i>
+                <div class="pulse-effect"></div>
+            </div>
+            <h1 class="terminal-effect">SYSTEM_ACCESS</h1>
+            <div class="hacker-animation">
+                > Initializing secure connection... [OK] > Encrypting channel... [AES-256] > Verifying credentials... [PENDING]
+            </div>
+        </div>
+        
+        <div class="auth-form">
+            <div class="input-group terminal-input">
+                <label for="email">
+                    <i class="fas fa-terminal"></i> 
+                    <span class="cli-prompt">root@matar:~$</span> login
+                </label>
+                <input type="text" id="email" class="terminal-style" placeholder="admin" autocorrect="off" autocapitalize="none" spellcheck="false">
+            </div>
+            
+            <div class="input-group terminal-input">
+                <label for="password">
+                    <i class="fas fa-lock"></i> 
+                    <span class="cli-prompt">root@matar:~$</span> password
+                </label>
+                <input type="password" id="password" class="terminal-style" placeholder="••••••••">
+                <div class="password-strength">
+                    <div class="strength-bar"></div>
+                    <div class="strength-text">SECURITY LEVEL: 0%</div>
+                </div>
+            </div>
+            
+            <button id="loginBtn" class="auth-btn">
+                <i class="fas fa-fingerprint"></i> 
+                <span class="btn-text">BIOMETRIC_AUTH</span>
+                <span class="btn-loader"><i class="fas fa-circle-notch fa-spin"></i></span>
+            </button>
+            
+            <div class="security-info">
+                <p><i class="fas fa-shield-virus"></i> <span id="ip-address">IP: 192.168.1.105</span></p>
+                <p><i class="fas fa-clock"></i> <span id="uptime">SYSTEM UPTIME: 127H 42M</span></p>
+                <p><i class="fas fa-network-wired"></i> <span id="firewall-status">FIREWALL: ACTIVE</span></p>
+            </div>
+        </div>
+        
+        <div class="auth-footer">
+            <div class="status-lights">
+                <div class="status-light red active"></div>
+                <div class="status-light yellow"></div>
+                <div class="status-light green"></div>
+            </div>
+            <p>MATAR_SECURITY v3.2 | <span id="threat-level">THREAT LEVEL: <span class="green-text">GREEN</span></span></p>
+            <p id="clock">[SYSTEM_TIME]</p>
+        </div>
+    </div>
+
+    <!-- Font Awesome pour les icônes -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Mise à jour dynamique de l'interface
+        function updateDynamicElements() {
+            const now = new Date();
+            document.getElementById('clock').textContent =
+                `[${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}]`;
+
+            // Simulation d'adresse IP dynamique
+            const fakeIP = `192.168.1.${Math.floor(Math.random() * 50) + 100}`;
+            document.getElementById('ip-address').textContent = `IP: ${fakeIP}`;
+
+            // Simulation de temps de fonctionnement
+            const hours = Math.floor(Math.random() * 200) + 50;
+            const minutes = Math.floor(Math.random() * 60);
+            document.getElementById('uptime').textContent = `SYSTEM UPTIME: ${hours}H ${minutes}M`;
+        }
+
+        setInterval(updateDynamicElements, 1000);
+        updateDynamicElements();
+
+        // Effet de force du mot de passe
+        const passwordInput = document.getElementById('password');
+        const strengthBar = document.querySelector('.strength-bar');
+        const strengthText = document.querySelector('.strength-text');
+
+        passwordInput.addEventListener('input', function () {
+            const val = passwordInput.value;
+            let strength = 0;
+            let color = '#ff0000';
+            let level = 'LOW';
+
+            if (val.length > 4) strength += 25;
+            if (val.length > 8) strength += 25;
+            if (/[A-Z]/.test(val)) strength += 15;
+            if (/[0-9]/.test(val)) strength += 15;
+            if (/[^A-Za-z0-9]/.test(val)) strength += 20;
+
+            strength = Math.min(strength, 100);
+
+            if (strength >= 80) {
+                color = '#0f0';
+                level = 'HIGH';
+            } else if (strength >= 50) {
+                color = '#ffcc00';
+                level = 'MEDIUM';
+            }
+
+            strengthBar.style.width = `${strength}%`;
+            strengthBar.style.backgroundColor = color;
+            strengthText.textContent = `SECURITY LEVEL: ${strength}% - ${level}`;
+            strengthText.style.color = color;
+        });
+        document.getElementById('loginBtn').addEventListener('click', function () {
+    // Optionnel : ajouter un effet de chargement
+    const btnText = document.querySelector('.btn-text');
+    const btnLoader = document.querySelector('.btn-loader');
+
+    btnText.style.display = 'none';
+    btnLoader.style.display = 'inline-block';
+
+    // Optionnel : petit délai pour montrer l'effet
+    setTimeout(() => {
+        window.location.href = 'dashboard.html'; // Redirection vers dashboard
+    }, 1500); // Délai en ms (1.5s)
+});
+
+    });
+</script>
+
+</body>
+</html>

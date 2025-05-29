@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MATAR Security - Appareils</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar (identique au dashboard) -->
+        <div class="sidebar">
+            <div class="logo">
+                <i class="fas fa-shield-alt"></i>
+                <span>MATAR Security</span>
+            </div>
+            <nav class="nav-menu">
+                <a href="dashboard.html">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </a>
+                <a href="devices.html" class="active">
+                    <i class="fas fa-microchip"></i> Appareils
+                </a>
+                <a href="logs.html">
+                    <i class="fas fa-clipboard-list"></i> Journal
+                </a>
+                <a href="#">
+                    <i class="fas fa-cog"></i> Paramètres
+                </a>
+                <a href="#" id="logoutBtn">
+                    <i class="fas fa-sign-out-alt"></i> Déconnexion
+                </a>
+            </nav>
+            <div class="system-status">
+                <div class="status-item online">
+                    <i class="fas fa-circle"></i>
+                    <span>Système actif</span>
+                </div>
+                <div class="status-item">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>Protection maximale</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <header class="top-bar">
+                <div class="search-bar">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Rechercher un appareil...">
+                </div>
+                <div class="user-info">
+                    <span>Admin</span>
+                    <div class="user-avatar">
+                        <i class="fas fa-user-secret"></i>
+                    </div>
+                </div>
+            </header>
+
+            <div class="content">
+                <div class="page-header">
+                    <h1><i class="fas fa-microchip"></i> Gestion des Appareils</h1>
+                    <button class="btn-primary" id="addDeviceBtn">
+                        <i class="fas fa-plus"></i> Ajouter un appareil
+                    </button>
+                </div>
+
+                <!-- Filtres -->
+                <div class="filters">
+                    <div class="filter-group">
+                        <label for="statusFilter"><i class="fas fa-filter"></i> Statut</label>
+                        <select id="statusFilter">
+                            <option value="all">Tous</option>
+                            <option value="active">Actifs</option>
+                            <option value="inactive">Inactifs</option>
+                            <option value="alert">En alerte</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="typeFilter"><i class="fas fa-tag"></i> Type</label>
+                        <select id="typeFilter">
+                            <option value="all">Tous</option>
+                            <option value="rfid">Lecteur RFID</option>
+                            <option value="camera">Caméra</option>
+                            <option value="sensor">Capteur</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Liste des appareils -->
+                <div class="devices-list">
+                    <div class="device-card online">
+                        <div class="device-icon">
+                            <i class="fas fa-id-card"></i>
+                        </div>
+                        <div class="device-info">
+                            <h3>Lecteur RFID Principal</h3>
+                            <p><strong>ID:</strong> RFID-001</p>
+                            <p><strong>Localisation:</strong> Porte d'entrée</p>
+                            <p><strong>Dernière activité:</strong> 2 min ago</p>
+                        </div>
+                        <div class="device-actions">
+                            <button class="btn-icon" title="Configurer">
+                                <i class="fas fa-cog"></i>
+                            </button>
+                            <button class="btn-icon" title="Historique">
+                                <i class="fas fa-history"></i>
+                            </button>
+                            <button class="btn-icon danger" title="Désactiver">
+                                <i class="fas fa-power-off"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="device-card alert">
+                        <div class="device-icon">
+                            <i class="fas fa-video"></i>
+                        </div>
+                        <div class="device-info">
+                            <h3>Caméra de surveillance</h3>
+                            <p><strong>ID:</strong> CAM-002</p>
+                            <p><strong>Localisation:</strong> Couloir principal</p>
+                            <p><strong>Statut:</strong> <span class="status-alert">Mouvement détecté</span></p>
+                        </div>
+                        <div class="device-actions">
+                            <button class="btn-icon" title="Voir le flux">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn-icon danger" title="Désactiver">
+                                <i class="fas fa-power-off"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="device-card offline">
+                        <div class="device-icon">
+                            <i class="fas fa-temperature-low"></i>
+                        </div>
+                        <div class="device-info">
+                            <h3>Capteur température</h3>
+                            <p><strong>ID:</strong> SENS-003</p>
+                            <p><strong>Localisation:</strong> Salle serveur</p>
+                            <p><strong>Statut:</strong> <span class="status-offline">Hors ligne</span></p>
+                        </div>
+                        <div class="device-actions">
+                            <button class="btn-icon" title="Reconnecter">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal d'ajout d'appareil -->
+    <div class="modal" id="addDeviceModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-plus-circle"></i> Ajouter un appareil</h2>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="deviceForm">
+                    <div class="form-group">
+                        <label for="deviceType">Type d'appareil</label>
+                        <select id="deviceType" required>
+                            <option value="">Sélectionner...</option>
+                            <option value="rfid">Lecteur RFID</option>
+                            <option value="camera">Caméra IP</option>
+                            <option value="sensor">Capteur</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="deviceName">Nom de l'appareil</label>
+                        <input type="text" id="deviceName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="deviceLocation">Localisation</label>
+                        <input type="text" id="deviceLocation" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="deviceIP">Adresse IP</label>
+                        <input type="text" id="deviceIP" placeholder="192.168.1.x" required>
+                    </div>
+                    <button type="submit" class="btn-primary">
+                        <i class="fas fa-save"></i> Enregistrer
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/devices.js') }}"></script>
+</body>
+</html>
