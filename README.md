@@ -3,12 +3,12 @@
 ## Description
 - Arduino + MFRC522 scanne les badges RFID.
 - Les accès sont envoyés au PC via port série.
-- Python enregistre les accès dans une base de données SQLite.
+- Python enregistre les accès dans une base de données SQLite("nous avons utilisé le DB browser").
 - Interface web Flask pour visualiser les logs.
 
 ## Utilisation
 1. Branchez l'Arduino.
-2. Lancez `lancer_projet.bat`.
+2. Lancez `app.py`.
 3. Passez un badge RFID sur le lecteur.
 4. Consultez les accès sur votre navigateur (`http://127.0.0.1:5000/`).
 
